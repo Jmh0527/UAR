@@ -1,30 +1,42 @@
 import torch
-from torch.utils.data import Dataset
-from PIL import Image
 import numpy as np
-
+from PIL import Image
+from pathlib import Path
+from torch.utils.data import Dataset
 
 class BaseDataset(Dataset):
     """
     BaseDataset serves as a generic template for loading data.
     Supports image and .npy data with optional labels and transformations.
     """
-    def __init__(self, img_paths, labels=None, transform=None, data_type='image'):
+
+    SUPPORTED_FORMATS = {
+        'image': ('.jpg', '.jpeg', '.png'),
+        'npy': ('.npy')
+    }
+    def __init__(self, img_paths, transform=None, data_type='image'):
         """
         Args:
             img_paths (list[str]): List of paths to the data files.
-            labels (list[int] or None): List of labels corresponding to the data, optional.
             transform (callable or None): A function/transform to apply to the data.
             data_type (str): Type of data ('image' or 'npy').
         """
         if data_type not in ['image', 'npy']:
             raise ValueError(f"Unsupported data_type: {data_type}")
-
         self.img_paths = img_paths
-        self.labels = labels
         self.transform = transform
         self.data_type = data_type
         self._preprocess = None
+        self.img_paths = self.prepare_paths(img_paths)
+
+    def prepare_paths(self, input_path):
+        image_paths = []
+        for dirpath in Path(input_path).rglob('*'):
+            if dirpath.is_file():
+                if dirpath.suffix.lower() not in self.SUPPORTED_FORMATS.get(self.data_type, set()):
+                    raise ValueError(f"Unsupported file format: {dirpath.suffix}")
+                image_paths.append(dirpath)
+        return image_paths
 
     @property
     def preprocess(self):
@@ -51,5 +63,10 @@ class BaseDataset(Dataset):
         if self.transform:
             data = self.transform(data)
 
-        label = self.labels[idx]
+        if '0_real' in str(self.img_paths[idx]):
+            label = 0.0
+        elif '1_fake' in str(self.img_paths[idx]):
+            label = 1.0
+        else:
+            raise ValueError(f"Unsupported label type: {str(self.img_paths[idx])}")
         return data, label

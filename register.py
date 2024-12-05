@@ -1,4 +1,5 @@
 from typing import Callable, List
+from collections import UserDict
 
 
 class BaseRegistry:
@@ -24,20 +25,7 @@ class BaseRegistry:
         return decorator
 
     @classmethod
-    def __setitem__(cls, key: str, value: Callable):
-        """
-        Add an object to the registry manually.
-        
-        Args:
-            key (str): The name to register the object under.
-            value (Callable): The object to register.
-        """
-        if key in cls._registry:
-            raise KeyError(f"'{key}' already exists.")
-        cls._registry[key] = value
-
-    @classmethod
-    def __getitem__(cls, key: str) -> Callable:
+    def __class_getitem__(cls, key: str) -> Callable:
         """
         Access a registered object by name.
 

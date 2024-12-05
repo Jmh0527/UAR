@@ -87,4 +87,5 @@ class Patch:
         return rich_image, poor_image
     
     def __call__(self, x):
-        return self.smash_recons(x)
+        rich_image, poor_image = self.smash_recons(x)
+        return HighPassFilter()(rich_image), HighPassFilter()(poor_image)
