@@ -49,8 +49,12 @@ class Trainer(nn.Module):
         """
         Set the input data for the model.
         """
-
-        self.input = data[0].to(self.device)
+        if isinstance(data, (list, tuple)):
+            # If the data[0] is a list, then iterate and  move each element to the device
+            self.input = [item.to(self.device) if isinstance(item, torch.Tensor) else item for item in data]
+        else:
+            # If data is not iterable, directly move it to the device
+            self.input = data[0].to(self.device)
         self.label = data[1].to(self.device)
 
     def forward(self):
@@ -112,10 +116,10 @@ class Trainer(nn.Module):
                 if self.total_steps % self.loss_freq == 0:
                     self.logger.info(f"Step {self.total_steps}, Loss: {self.loss.item():.4f}")
 
-                # Save model periodically
-                if self.save_dir and epoch % self.save_freq == 0:
-                    print(f"Saving model at step {self.total_steps}")
-                    self.save_networks(f"epoch_{epoch}")
+            # Save model periodically
+            if self.save_dir and epoch % self.save_freq == 0:
+                print(f"Saving model at step {self.total_steps}")
+                self.save_networks(f"epoch_{epoch}")
 
             # Scheduler step at the end of the epoch
             if self.scheduler:

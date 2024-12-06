@@ -1,3 +1,4 @@
+from typing import List
 import torch
 import torch.nn as nn
 import numpy as np
@@ -5,25 +6,28 @@ from sklearn.metrics import accuracy_score, average_precision_score
 
 
 class Validator(nn.Module):
-    validation_sets = [
-        'progan', 'stylegan', 'biggan', 'cyclegan', 'stargan', 'gaugan',
-        'stylegan2', 'whichfaceisreal', 'ADM', 'Glide', 'Midjourney',
-        'stable_diffusion_v_1_4', 'stable_diffusion_v_1_5', 'VQDM', 'wukong', 'DALLE2'
-    ]
-
-    def __init__(self, model, dataloader, checkpoint_paths):
+    def __init__(self, model, dataloader, checkpoint_path):
         """
         Args:
             model: The neural network model for validation.
             dataloder: User-defined dataloader.
-            checkpoint_paths: Dictionary mapping dataset names to checkpoint file paths.
+            checkpoint_path: Dictionary mapping dataset names to checkpoint file paths.
         """
 
         super(Validator, self).__init__()
         self.model = model
         self.dataloader = dataloader
-        self.checkpoint_paths = checkpoint_paths
+        self.checkpoint_path = checkpoint_path
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self._eval_hook = None # Preprocess before eval
+
+    @property
+    def eval_hook(self):
+        return self._eval_hook
+
+    @eval_hook.setter
+    def eval_hook(self, hook):
+        self._eval_hook = hook
 
     def eval(self) -> List[List]:
         """
@@ -38,19 +42,21 @@ class Validator(nn.Module):
         """
 
         results = []
-        for val in self.validation_sets:
 
-            # Load the model checkpoint
-            state_dict = torch.load(self.checkpoint_paths[val], map_location='cpu')
-            self.model.load_state_dict(state_dict['model'], strict=True)
-            self.model.to(self.device)
-            self.model.eval()
+        if self._eval_hook:
+            self._eval_hook()
+        
+        state_dict = torch.load(self.checkpoint_path, map_location='cpu')
+        if 'model' in state_dict.keys():
+            self.model.load_state_dict(state_dict['model'])
+        else:
+            self.model.load_state_dict(state_dict)
+        self.model.to(self.device)
+        self.model.eval()
 
-            acc, ap, r_acc, f_acc, _, _ = self.validate()
-            results.append([val, acc, ap, r_acc, f_acc])
-            print(f"({val}) acc: {acc}; ap: {ap}; r_acc: {r_acc}; f_acc: {f_acc}")
+        acc, ap, r_acc, f_acc, _, _ = self.validate()
 
-        return results
+        return acc, ap, r_acc, f_acc
 
     def validate(self):
         """

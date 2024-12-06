@@ -5,6 +5,7 @@ import cv2
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision.transforms as transforms
 import numpy as np
 
 from register import TransformRegistry
@@ -18,12 +19,15 @@ class HighPassFilter(nn.Module):
     def __init__(self):
         super(HighPassFilter, self).__init__()
         self.high_pass = nn.Conv2d(in_channels=3, out_channels=30, 
-                                kernel_size=5, stride=1, padding=2)
+                                    kernel_size=5, stride=1, padding=2)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # Load and set filter weights once, outside the forward pass.
+        filter = torch.tensor(np.load('./preprocess/SRM_Kernels.npy'), dtype=torch.float32)
+        filter = filter.repeat(1, 3, 1, 1).to(self.device)  # Move filter to the correct device.
+        self.high_pass.weight = nn.Parameter(filter, requires_grad=False)
 
     def forward(self, x):
-        filter = torch.tensor(np.load('./preprocess/SRM_Kernels.npy'), dtype=torch.float32)
-        filter = filter.repeat(1, 3, 1, 1)
-        self.high_pass.weight = nn.Parameter(filter, requires_grad=False)
         return self.high_pass(x)
 
 
@@ -35,6 +39,7 @@ class Patch:
     def __init__(self, size=32, patch_num=192):
         self.size = size 
         self.patch_num = patch_num
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     @staticmethod
     def get_pixel_fluctuation(patch: np.ndarray) -> int:
@@ -87,5 +92,20 @@ class Patch:
         return rich_image, poor_image
     
     def __call__(self, x):
+        x = np.array(x)
         rich_image, poor_image = self.smash_recons(x)
-        return HighPassFilter()(rich_image), HighPassFilter()(poor_image)
+
+        def process_image(image):
+            image = transforms.ToTensor()(image.astype(np.uint8))
+            image = transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])(image)
+            return image
+
+        # 图像处理
+        rich_img = process_image(rich_image).to(self.device)
+        poor_img = process_image(poor_image).to(self.device)
+
+        # 使用 HighPassFilter
+        filter = HighPassFilter().to(self.device)
+        return filter(rich_img), filter(poor_img)
+
+

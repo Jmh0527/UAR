@@ -10,7 +10,6 @@ from networks import NetworkRegistry
 from preprocess import TransformRegistry
 
 def main(args):
-    # 设置日志
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
@@ -36,7 +35,7 @@ def main(args):
     train_dataset = BaseDataset(
         img_paths=args.dataroot,
         transform=transform,
-        data_type='npy'
+        data_type=args.datatype
     )
 
     train_dataloader = torch.utils.data.DataLoader(
@@ -44,7 +43,7 @@ def main(args):
         batch_size=args.batch_size,
         shuffle=True
     )
-    
+
     # 优化器与损失函数
     optimizer = Adam(
         model.parameters(),
@@ -63,7 +62,7 @@ def main(args):
         logger=logger,
         epoch=args.epoch,
         save_dir=f"./checkpoints/{args.model}",
-        loss_freq=50
+        loss_freq=10
     )
     
     # 开始训练
@@ -72,6 +71,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='AIMClassifier', help="Defined in the NetworkRegistry: AIMClassifier or PatchCraft")
+    parser.add_argument('--datatype', type=str, default='npy', help="Specify the input data type. Options: 'npy' for AIMClassifier or 'image' for PatchCraft.")
     parser.add_argument('--epoch', type=int, default=1, help="The number of training epochs")
     parser.add_argument('--lr', type=float, default=0.001, help="The learning rate during training")
     parser.add_argument('--dataroot', type=str, required=True, help="The dir path of input images")
