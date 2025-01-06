@@ -25,7 +25,7 @@ def main(args):
     
     if args.model not in NetworkRegistry.list_registered():
         raise ValueError(f"Model {args.model} is not registered in NetworkRegistry.")
-    model = NetworkRegistry[args.model]() # 注意实例化
+    model = NetworkRegistry[args.model]()
     
     if args.transform in TransformRegistry.list_registered():
         transform = TransformRegistry[args.transform]()
@@ -44,7 +44,6 @@ def main(args):
         shuffle=True
     )
 
-    # 优化器与损失函数
     optimizer = Adam(
         model.parameters(),
         lr=args.lr,
@@ -53,7 +52,6 @@ def main(args):
     
     loss_fn = nn.BCEWithLogitsLoss()
     
-    # 初始化 Trainer
     trainer = Trainer(
         model=model,
         dataloader=train_dataloader,
@@ -61,11 +59,10 @@ def main(args):
         loss_fn=loss_fn,
         logger=logger,
         epoch=args.epoch,
-        save_dir=f"./checkpoints/{args.model}",
+        save_dir=f"./checkpoints/{args.model}2",
         loss_freq=10
     )
-    
-    # 开始训练
+
     trainer.train()
 
 if __name__ == "__main__":
@@ -80,3 +77,6 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     main(args)
+
+# python train.py --dataroot /home/data2/jingmh/imagenet/ILSVRC2012_img_test_v10102019/aim_new_v1/stable_1p4_npy_aimv1_subset10000
+# python train.py --dataroot /home/data2/jmh/demo/demo_images --model PatchCraft --datatype image --transform Patch

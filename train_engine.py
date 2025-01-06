@@ -49,12 +49,12 @@ class Trainer(nn.Module):
         """
         Set the input data for the model.
         """
-        if isinstance(data, (list, tuple)):
-            # If the data[0] is a list, then iterate and  move each element to the device
-            self.input = [item.to(self.device) if isinstance(item, torch.Tensor) else item for item in data]
-        else:
-            # If data is not iterable, directly move it to the device
+        if type(self.model).__name__ == 'PatchCraft':
+            # data[0] is a list containing two tensor
+            self.input = [item.to(self.device) for item in data[0]]
+        elif type(self.model).__name__ == 'AIMClassifier':
             self.input = data[0].to(self.device)
+            
         self.label = data[1].to(self.device)
 
     def forward(self):
@@ -79,7 +79,6 @@ class Trainer(nn.Module):
         """
         Compute the loss function.
         """
-
         self.loss = self.loss_fn(self.output.squeeze(), self.label)
 
     def optimize_parameters(self):

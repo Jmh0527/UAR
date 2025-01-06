@@ -49,7 +49,7 @@ def main(args):
         validator = Validator(model, dataloader, args.checkpoint)
         acc, ap, r_acc, f_acc = validator.eval()
         result_line = f"{args.validation_sets[idx]} acc: {acc:.2f}, ap: {ap:.2f}, r_acc: {r_acc:.2f}, f_acc: {f_acc:.2f}"
-        ACC.append(acc)  # 直接存储浮点数，计算时再格式化
+        ACC.append(acc) 
         write_or_log(result_line, args.output)
 
     average_acc = sum(ACC) / len(ACC)
@@ -79,3 +79,6 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     main(args)
+
+# python eval.py --dataroot /home/data2/jmh/demo/demo_aimnpy --checkpoint /home/data2/jmh/checkpoints/AIMClassifier/epoch_0_model.pth --validation_sets ''
+# python eval.py --dataroot /home/data2/jingmh/data/test_npy --checkpoint /home/data2/jmh/checkpoints/AIMClassifier2/epoch_0_model.pth

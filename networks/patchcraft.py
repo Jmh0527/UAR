@@ -48,7 +48,7 @@ class PatchCraft(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        rich, poor = x[0][0], x[0][1]
+        rich, poor = x[0], x[1]
         # Process rich and poor features separately
         rich_features = self.conv_rich(rich)
         poor_features = self.conv_poor(poor)
