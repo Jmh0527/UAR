@@ -49,12 +49,7 @@ class Trainer(nn.Module):
         """
         Set the input data for the model.
         """
-        if type(self.model).__name__ == 'PatchCraft':
-            # data[0] is a list containing two tensor
-            self.input = [item.to(self.device) for item in data[0]]
-        elif type(self.model).__name__ == 'AIMClassifier':
-            self.input = data[0].to(self.device)
-            
+        self.input = data[0].to(self.device)  
         self.label = data[1].to(self.device)
 
     def forward(self):
@@ -115,11 +110,6 @@ class Trainer(nn.Module):
                 if self.total_steps % self.loss_freq == 0:
                     self.logger.info(f"Step {self.total_steps}, Loss: {self.loss.item():.4f}")
 
-            # Save model periodically
-            if self.save_dir and epoch % self.save_freq == 0:
-                print(f"Saving model at step {self.total_steps}")
-                self.save_networks(f"epoch_{epoch}")
-
             # Scheduler step at the end of the epoch
             if self.scheduler:
                 self.scheduler.step()
@@ -127,6 +117,11 @@ class Trainer(nn.Module):
             # Print epoch loss
             print(f"Epoch {epoch + 1} Loss: {epoch_loss / len(self.dataloader):.4f}")
             print(f"Epoch {epoch + 1} completed in {time.time() - epoch_start_time:.2f} seconds.")
+        
+        # Save model
+        if self.save_dir:
+            print(f"Saving model at step {self.total_steps}")
+            self.save_networks(f"epoch_{epoch}")
 
         print("Training completed.")
 
@@ -137,5 +132,6 @@ class Trainer(nn.Module):
         Path(self.save_dir).mkdir(parents=True, exist_ok=True)
         if self.save_dir:
             save_path = f"{self.save_dir}/{label}_model.pth"
-            torch.save(self.model.state_dict(), save_path)
+            final_model = self.model.merge_and_unload()
+            torch.save(final_model.state_dict(), save_path)
             self.logger.info(f"Model saved to {save_path}")

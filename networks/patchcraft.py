@@ -24,7 +24,7 @@ class PatchCraft(nn.Module):
     PatchCraft model for feature filtering and classification.
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super(PatchCraft, self).__init__()
         self.conv_rich = ConvBlock(30, 30)
         self.conv_poor = ConvBlock(30, 30)

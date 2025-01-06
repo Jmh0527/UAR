@@ -33,7 +33,7 @@ def main(args):
     # Load dataset and dataloader
     val_dataloaders = []
     for val in args.validation_sets:
-        dataset = BaseDataset(img_paths=Path(args.dataroot)/Path(val), transform=transform, data_type=args.datatype)
+        dataset = BaseDataset(img_paths=Path(args.dataroot)/Path(val), transform=transform)
         val_dataloaders.append(DataLoader(dataset, batch_size=args.batch_size, shuffle=False))
 
     def write_or_log(line, output_path):
@@ -60,7 +60,6 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='AIMClassifier', help="Defined in the NetworkRegistry: AIMClassifier or PatchCraft")
-    parser.add_argument('--datatype', type=str, default='npy', help="Specify the input data type. Options: 'npy' for AIMClassifier or 'image' for PatchCraft.")
     parser.add_argument('--dataroot', type=str, required=True, help="Path to the validation dataset root.")
     parser.add_argument('--checkpoint', type=str, required=True, help="Directory containing model checkpoints.")
     parser.add_argument('--batch_size', type=int, default=32, help="Batch size for validation.")

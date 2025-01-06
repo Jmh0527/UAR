@@ -1,37 +1,66 @@
-import argparse
 import logging
+import argparse
+
 import torch
 import torch.nn as nn
 from torch.optim import Adam
+from peft import LoraConfig, get_peft_model
 
 from train_engine import Trainer
 from dataset import BaseDataset
-from networks import NetworkRegistry
+from networks import NetworkRegistry 
 from preprocess import TransformRegistry
+
+def print_trainable_parameters(model):
+    """
+    Prints the number of trainable parameters in the model.
+    """
+    trainable_params = 0
+    all_param = 0
+    for _, param in model.named_parameters():
+        all_param += param.numel()
+        if param.requires_grad:
+            trainable_params += param.numel()
+    print(f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param}")
 
 def main(args):
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.FileHandler("training.log"), 
+            logging.FileHandler("training.log"),
             logging.StreamHandler()
         ]
     )
-    
+
     logger = logging.getLogger(__name__)
     if not logger.hasHandlers():
         logger.addHandler(logging.StreamHandler())
-    
+
+    # LoRA config
+    lora_config = LoraConfig(
+        r=8, # 逐步实验看8 16 32的效果
+        lora_alpha=16,  
+        lora_dropout=0.1,
+        target_modules=["proj", "qkv", "fc1", "fc2"]
+    )
+
     if args.model not in NetworkRegistry.list_registered():
         raise ValueError(f"Model {args.model} is not registered in NetworkRegistry.")
-    model = NetworkRegistry[args.model](backbone_ckpt_path=args.backbone_ckpt_path, head_ckpt_path=args.head_ckpt_path)
     
+    model = NetworkRegistry[args.model](
+        backbone_ckpt_path=args.backbone_ckpt_path,
+        head_ckpt_path=args.head_ckpt_path
+    )
+    
+    lora_model = get_peft_model(model, lora_config)
+    print_trainable_parameters(lora_model)
+
     if args.transform in TransformRegistry.list_registered():
         transform = TransformRegistry[args.transform]()
     else:
         transform = None
-    
+
     train_dataset = BaseDataset(
         img_paths=args.dataroot,
         transform=transform,
@@ -44,7 +73,7 @@ def main(args):
     )
 
     optimizer = Adam(
-        model.parameters(),
+        lora_model.parameters(), 
         lr=args.lr,
         betas=(0.9, 0.999)
     )
@@ -52,13 +81,13 @@ def main(args):
     loss_fn = nn.BCEWithLogitsLoss()
     
     trainer = Trainer(
-        model=model,
+        model=lora_model,
         dataloader=train_dataloader,
         optimizer=optimizer,
         loss_fn=loss_fn,
         logger=logger,
         epoch=args.epoch,
-        save_dir=f"./checkpoints/{args.model}2",
+        save_dir=f"./checkpoints/{args.model}_lora",
         loss_freq=10
     )
 
