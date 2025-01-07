@@ -59,7 +59,7 @@ def main(args):
         loss_fn=loss_fn,
         logger=logger,
         epoch=args.epoch,
-        save_dir=f"./checkpoints/{args.model}2",
+        save_dir=f"./checkpoints/{args.model}_pair",
         loss_freq=10
     )
 
