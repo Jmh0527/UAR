@@ -1,1 +1,1 @@
-# UAR_Detection_Fake_Images
+# The official code for UAR: Detecting AI-Generated Images Using Only Real Images
