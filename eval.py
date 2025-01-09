@@ -48,12 +48,12 @@ def main(args):
     for idx, dataloader in enumerate(val_dataloaders):
         validator = Validator(model, dataloader, args.checkpoint)
         acc, ap, r_acc, f_acc = validator.eval()
-        result_line = f"{args.validation_sets[idx]} acc: {acc:.2f}, ap: {ap:.2f}, r_acc: {r_acc:.2f}, f_acc: {f_acc:.2f}"
+        result_line = f"{args.validation_sets[idx]} acc: {acc:.4f}, ap: {ap:.4f}, r_acc: {r_acc:.4f}, f_acc: {f_acc:.4f}"
         ACC.append(acc) 
         write_or_log(result_line, args.output)
 
     average_acc = sum(ACC) / len(ACC)
-    average_line = f"average acc: {average_acc:.2f}\n"
+    average_line = f"average acc: {average_acc:.4f}\n"
     write_or_log(average_line, args.output)
 
 

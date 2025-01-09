@@ -59,7 +59,7 @@ def main(args):
         loss_fn=loss_fn,
         logger=logger,
         epoch=args.epoch,
-        save_dir=f"./checkpoints/{args.model}2",
+        save_dir=args.savedir,
         loss_freq=10
     )
 
@@ -74,6 +74,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataroot', type=str, required=True, help="The dir path of input images")
     parser.add_argument('--batch_size', type=int, default=32, help="The batch size during training")
     parser.add_argument('--transform', type=str, default=None, help="Transformation method registered in TransformRegistry")
+    parser.add_argument('--savedir', type=str, default="./checkpoints/AIMClassifier", help="The path saving checkpoints")
     
     args = parser.parse_args()
     main(args)
