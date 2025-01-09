@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional, Tuple, Union
 
 import torch
 from torchvision.datasets import VisionDataset
@@ -12,16 +12,18 @@ from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion_img2img impo
 from joblib.hashing import hash
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
+import torchvision.transforms.v2 as tf
 from torchvision.transforms.v2.functional import to_pil_image
 from tqdm import tqdm
 import argparse
+
+IMG_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"]
+
 
 class ImageFolder(VisionDataset):
     """
     Dataset for reading images from a list of paths, directories, or a mixture of both.
     """
-    
-    IMG_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp"]
 
     def __init__(
         self,
@@ -38,7 +40,7 @@ class ImageFolder(VisionDataset):
         self.img_paths = []
         for path in self.paths:
             if path.is_dir():
-                for file in read_files(path):
+                for file in sorted(path.iterdir()):
                     if file.suffix.lower() in IMG_EXTENSIONS:
                         self.img_paths.append(file)
                         if (
@@ -85,11 +87,6 @@ def device() -> str:
     """Return 'cuda' if available, 'cpu' otherwise"""
     return "cuda" if torch.cuda.is_available() else "cpu"
 
-def write_config(config: dict, directory: Path) -> None:
-    """Write config text file to specified directory."""
-    with open(directory / "config.json", "w") as f:
-        json.dump({key: str(value) for key, value in config.items()}, f)
-
 @torch.no_grad()
 def reconstruction_image(
     ds: Dataset,
@@ -101,7 +98,6 @@ def reconstruction_image(
 ) -> None:
     
     safe_mkdir(output_dir)
-    write_config(arg_dict, output_dir.parent)
 
     # set up pipeline
     pipe = AutoPipelineForImage2Image.from_pretrained(
@@ -154,29 +150,28 @@ def reconstruction_image(
                 reconstruction_path = output_dir / f"{Path(path).stem}.png"
                 to_pil_image(reconstruction).save(reconstruction_path)
         except:
-            with open('/home/data2/jingmh/code/aeroblade/error.txt', 'a') as f:
+            with open('./reconstruct_error.txt', 'a') as f:
                 f.write(paths[0] + '\n')
             continue
     print(f"Images saved to {output_dir}.")
     return reconstruction_paths
 
 def main(args):
-    ds = ImageFolder(args.input_dir)
+    ds = ImageFolder(Path(args.input_dir))
     reconstruction_image(
         ds,
         repo_id=Path(args.repo_id),
-        output_root=Path(args.output_dir),
+        output_dir=Path(args.output_dir),
         seed=1,
         batch_size=1,
         num_workers=1,
     )
     
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Reconstruct real images for training UAR."
-    )
+    parser = argparse.ArgumentParser(description="Reconstruct real images for training UAR.")
+    parser.add_argument("--repo_id", type=str, default="/home/jingmh/.cache/huggingface/hub/stable-diffusion-v1-4")
+    parser.add_argument("--input_dir", type=str, default="/home/data2/jmh/image_data/0_real")
+    parser.add_argument("--output_dir", type=str, default="/home/data2/jmh/image_data/1_fake")
     
-    parser.add_argument(--input_dir, type=str, default="/home/jingmh/.cache/huggingface/hub/stable-diffusion-v1-4")
-    parser.add_argument(--output_dirtype=str, default="")
-    main()
+    args = parser.parse_args()
+    main(args)
