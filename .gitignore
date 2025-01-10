@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 *.log
+image_data/
+image_data_npy/
