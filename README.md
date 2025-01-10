@@ -43,12 +43,29 @@ wget -O aim_3b_5bimgs_attnprobe_head_best_layers.pth "https://cdn-lfs-us-1.hf.co
 python feature_extract.py --input_path [your_image_root] --output_path [your_npy_root] --backbone_ckpt_path ./aim_3b_5bimgs_attnprobe_backbone.pth --head_ckpt_path ./aim_3b_5bimgs_attnprobe_head_best_layers.pth
 ```
 
-## Train
-We have extracted features of 10,000 real images and their reconstructed images, which are stored in UAR/data and can be used directly for training. If you want to train on your own dataset, you can extract features using feature_extract.py
+## Reconstruct Real Images
+We use vae in stable diffusion to reconstruct images, you can also use other generative models.
+```bash
+git lfs install
+git clone https://huggingface.co/CompVis/stable-diffusion-v1-4
 
+# you can also use HF-mirror to clone
+# git clone https://hf-mirror.com/CompVis/stable-diffusion-v1-4
+
+python reconstruct.py --repo_id ./stable-diffusion-v1-4 --input_dir [your_real_image] --output_dir [your_reconstruct_dir]
+```
+
+## Train
+We have extracted features of 10,000 real images and their reconstructed images, which are stored in UAR/data and can be used directly for training. 
 ```bash
 # Train
 python train.py --dataroot ./data --savedir [your_save_path]
+```
+
+If you want to train on your own dataset, you can reconstruct real images using reconstruct.py and extract features using feature_extract.py
+```bash
+python reconstruct.py --repo_id ./stable-diffusion-v1-4 --input_dir [your_real_image_dir] --output_dir [your_reconstruct_image_dir]
+python feature_extract.py --input_path [your_image_root] --output_path [your_npy_root] --backbone_ckpt_path ./aim_3b_5bimgs_attnprobe_backbone.pth --head_ckpt_path ./aim_3b_5bimgs_attnprobe_head_best_layers.pth
 ```
 
 ## Test
