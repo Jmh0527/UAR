@@ -43,7 +43,7 @@ def infer_single_image(args):
 
     # Perform inference
     with torch.no_grad():
-        output = model(image)
+        output = model(image).sigmoid()
 
     logger.info(f"Fake possibility for image {args.image_path}: {output.item()}")
     return output.item()
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     parser.add_argument('--model', type=str, default='AIMClassifier', help="Defined in the NetworkRegistry: AIMClassifier or PatchCraft")
     parser.add_argument('--datatype', type=str, default='npy', help="Specify the input data type. Options: 'npy' for AIMClassifier or 'image' for PatchCraft.")
     parser.add_argument('--checkpoint', type=str, required=True, help="Path to the model checkpoint.")
-    parser.add_argument('--image_path', type=str, required=True, help="Path to the image file.")
+    parser.add_argument('--image_path', type=str, required=True, help="Path to the image file")
     parser.add_argument('--transform', type=str, default=None, help="Defined TransformRegistry: HighPassFilter or Patch.")
 
     args = parser.parse_args()
