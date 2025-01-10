@@ -78,6 +78,3 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     main(args)
-
-# python train.py --dataroot /home/data2/jingmh/imagenet/ILSVRC2012_img_test_v10102019/aim_new_v1/stable_1p4_npy_aimv1_subset10000
-# python train.py --dataroot /home/data2/jmh/demo/demo_images --model PatchCraft --datatype image --transform Patch

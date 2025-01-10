@@ -79,6 +79,3 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     main(args)
-
-# python eval.py --dataroot /home/data2/jmh/demo/demo_aimnpy --checkpoint /home/data2/jmh/checkpoints/AIMClassifier/epoch_0_model.pth --validation_sets ''
-# python eval.py --dataroot /home/data2/jingmh/data/test_npy --checkpoint /home/data2/jmh/checkpoints/AIMClassifier2/epoch_0_model.pth
