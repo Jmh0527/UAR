@@ -60,7 +60,7 @@ We also provide corresponding `.npy` features in the following links:
 
 ```bash
 # Test
-python eval.py --dataroot ./test_npy --checkpoint /home/data2/jmh/checkpoints/AIMClassifier2/epoch_0_model.pth
+python eval.py --dataroot ./test_npy --checkpoint ./checkpoints/AIMClassifier/epoch_0_model.pth
 ```
 
 ## Test Results

@@ -169,9 +169,9 @@ def main(args):
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Reconstruct real images for training UAR.")
-    parser.add_argument("--repo_id", type=str, default="/home/jingmh/.cache/huggingface/hub/stable-diffusion-v1-4")
-    parser.add_argument("--input_dir", type=str, default="/home/data2/jmh/image_data/0_real")
-    parser.add_argument("--output_dir", type=str, default="/home/data2/jmh/image_data/1_fake")
+    parser.add_argument("--repo_id", type=str, default="./stable-diffusion-v1-4")
+    parser.add_argument("--input_dir", type=str, default="./image_data/0_real")
+    parser.add_argument("--output_dir", type=str, default="./image_data/1_fake")
     
     args = parser.parse_args()
     main(args)
