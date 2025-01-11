@@ -5,6 +5,7 @@ import cv2
 import heapq
 import random
 from pathlib import Path
+from typing import Union, Callable, List
 
 import torch
 import torch.nn as nn
