@@ -54,9 +54,9 @@ class Validator(nn.Module):
         self.model.to(self.device)
         self.model.eval()
 
-        acc, ap, r_acc, f_acc, _, _ = self.validate()
+        acc, ap, r_acc, f_acc, y_true, y_pred = self.validate()
 
-        return acc, ap, r_acc, f_acc
+        return acc, ap, r_acc, f_acc, y_true, y_pred
 
     def validate(self):
         """
@@ -76,6 +76,10 @@ class Validator(nn.Module):
         y_true = np.array(y_true)
         y_pred = np.array(y_pred)
 
+        print('****************************************************************')
+        print(f'predict real image number:{(y_pred <= 0.5).sum()}')
+        print(f'predict fake image number:{(y_pred > 0.5).sum()}')
+        print('****************************************************************')
         r_acc = accuracy_score(y_true[y_true == 0], y_pred[y_true == 0] >= 0.5)
         f_acc = accuracy_score(y_true[y_true == 1], y_pred[y_true == 1] >= 0.5)
         acc = accuracy_score(y_true, y_pred > 0.5)

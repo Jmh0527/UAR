@@ -47,7 +47,24 @@ def main(args):
     ACC = []
     for idx, dataloader in enumerate(val_dataloaders):
         validator = Validator(model, dataloader, args.checkpoint)
-        acc, ap, r_acc, f_acc = validator.eval()
+        acc, ap, r_acc, f_acc, y_true, y_pred = validator.eval()
+        
+        import matplotlib.pyplot as plt
+        from sklearn.metrics import precision_recall_curve
+        precision, recall, _ = precision_recall_curve(y_true, y_pred)
+
+        plt.figure(figsize=(8, 6))
+        plt.plot(recall, precision, color='b', lw=2)
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title('Precision-Recall Curve')
+        plt.grid(True)
+
+        # Save the plot to the specified path
+        name = args.validation_sets[idx]
+        plt.savefig(f'./PR_curve/{name}.png')
+        print(f"Precision-Recall curve saved to {args.validation_sets[idx]+'.png'}")
+        
         result_line = f"{args.validation_sets[idx]} acc: {acc:.4f}, ap: {ap:.4f}, r_acc: {r_acc:.4f}, f_acc: {f_acc:.4f}"
         ACC.append(acc) 
         write_or_log(result_line, args.output)
