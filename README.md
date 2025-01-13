@@ -57,6 +57,8 @@ python reconstruct.py --repo_id ./stable-diffusion-v1-4 --input_dir [your_real_i
 
 ## Train
 We have extracted features of 10,000 real images and their reconstructed images, which are stored in `UAR/data` and can be used directly for training. 
+
+The origin image can be downloader from [BaiduNetdisk](https://pan.baidu.com/s/1secHnpVj0_a82vP17MCClQ?pwd=nw1h) or [Google Drive](https://drive.google.com/file/d/146GQNq3zrLIApzDFvEXx9xRc0iFC2mGs/view?usp=drive_link)
 ```bash
 # Train
 python train.py --dataroot ./data --savedir [your_save_path]
@@ -69,11 +71,11 @@ python feature_extract.py --input_path [your_image_root] --output_path [your_npy
 ```
 
 ## Test
-The test data can be downloaded from the following [GitHub repository](https://github.com/Ekko-zn/AIGCDetectBenchmark). Baidu Netdisk link: [Download from BaiduNetdisk](https://pan.baidu.com/s/1dZz7suD-X5h54wCC9SyGBA?pwd=l30u#list/path=%2F).
+We provide test image features (.npy) in the following links:
+- Baidu Netdisk: [Download test image features from BaiduNetdisk](https://pan.baidu.com/s/1SpfSLDlJ-qOIbh1yVK6bww?pwd=i8y9).
+- Google Drive: [Download test image features from Google Drive](https://drive.google.com/file/d/1fkmqJXeliXSw8U_8vf16TXwoKA6CyyvA/view?usp=drive_link).
 
-We also provide corresponding `.npy` features in the following links:
-- Baidu Netdisk: [Download features from BaiduNetdisk](https://pan.baidu.com/s/1dZz7suD-X5h54wCC9SyGBA?pwd=l30u#list/path=%2F).
-- Google Drive: [Download features from Google Drive](<Your_Google_Drive_Link>).
+The test images are from this [GitHub repository](https://github.com/Ekko-zn/AIGCDetectBenchmark) and can be download from [BaiduNetdisk](https://pan.baidu.com/s/1dZz7suD-X5h54wCC9SyGBA?pwd=l30u#list/path=%2F).
 
 ```bash
 # Test
