@@ -3,3 +3,7 @@ __pycache__/
 *.log
 image_data/
 image_data_npy/
+*.pth
+*.npy 
+*.png
+stable-diffusion-v1-4/
