@@ -9,7 +9,7 @@ import numpy as np
 from PIL import Image 
 from tqdm import tqdm
 
-from aimv1.aim.v1.torch import models
+from aim.v1.torch import models
 from register import NetworkRegistry 
 
 
