@@ -3,3 +3,4 @@ __pycache__/
 *.log
 image_data/
 image_data_npy/
+*.pth
