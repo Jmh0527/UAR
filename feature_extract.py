@@ -5,6 +5,7 @@ import cv2
 import heapq
 import random
 from pathlib import Path
+from typing import Union, Callable, List
 
 import torch
 import torch.nn as nn
@@ -48,7 +49,7 @@ class Patch:
             patches.append(patch)
             pixel_flictuation.append(Patch.get_pixel_flictuation(patch))
         pixel_flictuation = np.array(pixel_flictuation)
-        sorted_indices = np.argsort(pixel_flictuation) # 递增
+        sorted_indices = np.argsort(pixel_flictuation)
 
         rich_image = patches[sorted_indices[-1]]
         poor_image = patches[sorted_indices[0]]
