@@ -112,4 +112,4 @@ if __name__ == "__main__":
     args = parse_args()
     main(args)
 
-# torchrun --nproc_per_node=4 --master_addr="localhost" --master_port=12355 train.py --dataroot /path/to/imagenet --batch_size 32 --model AIMClassifier --transform Patch
+# torchrun --nproc_per_node=4 --master_addr="localhost" --master_port=12355 train.py --dataroot /path/to/imagenet --batch_size 32 --model AIMClassifier --transform UAR
