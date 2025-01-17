@@ -7,7 +7,7 @@ class BaseRegistry:
     A generic registry for dynamically managing and accessing objects.
     Subclass this class to create specific registries.
     """
-    _registry = {}  # 将注册表改为类属性
+    _registry = {}  
 
     @classmethod
     def register(cls, name: str) -> Callable:

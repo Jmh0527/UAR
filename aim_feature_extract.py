@@ -10,8 +10,44 @@ from PIL import Image
 from tqdm import tqdm
 
 from aim.v1.utils import load_pretrained
-from preprocess.patchcraft_preprocess import Patch
 
+
+class Patch:
+    def __init__(self, size=224, patch_num=192):
+        super(Patch, self).__init__()
+        self.size = size 
+        self.patch_num = patch_num
+    
+    @staticmethod
+    def get_pixel_flictuation(x):
+        res = 0
+        res += np.sum(np.abs(x[:, :-1] - x[:, 1:])) 
+        res += np.sum(np.abs(x[:-1, :] - x[1:, :])) 
+        res += np.sum(np.abs(x[:-1, :-1] - x[1:, 1:])) 
+        res += np.sum(np.abs(x[1:, :-1] - x[:-1, 1:])) 
+        return res
+    
+    def smash_recons(self, x):
+        '''
+        Randomly sample 192 224*224 patches in image
+        In the rich/poor texture reconstructed images, each patch is sorted from top left to bottom right based on their diversity. 
+        The patch located in the top-left corner contains the poorest/richest texture
+        '''
+        patches = []
+        pixel_flictuation = []
+        for _ in range(self.patch_num):
+            sample1 = random.randint(0, x.shape[0] - self.size)
+            sample2 = random.randint(0, x.shape[1] - self.size)
+            patch = x[sample1:sample1+self.size, sample2:sample2+self.size]
+            patches.append(patch)
+            pixel_flictuation.append(Patch.get_pixel_flictuation(patch))
+        pixel_flictuation = np.array(pixel_flictuation)
+        sorted_indices = np.argsort(pixel_flictuation) # 递增
+
+        rich_image = patches[sorted_indices[-1]]
+        poor_image = patches[sorted_indices[0]]
+        return rich_image, poor_image
+    
 
 class ImageFeatureDataset(Dataset):
     """
@@ -48,9 +84,9 @@ class ImageFeatureDataset(Dataset):
         img_path = self.image_paths[idx]
         output_path = self.output_paths[idx]
         try:
+            P = Patch()
             img = Image.open(img_path).convert('RGB')
-            patch_processor = Patch(size=224)
-            rich_image, _ = patch_processor(np.array(img).astype(np.float32))
+            rich_image, _ = P.smash_recons(np.array(img).astype(np.float32))
             rich_image = Image.fromarray(rich_image.astype(np.uint8))
             inputs = self.processor(rich_image)
         except:

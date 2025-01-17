@@ -58,7 +58,7 @@ def main(args):
         loss_fn=loss_fn,
         logger=logger,
         epoch=args.epoch,
-        save_dir=f"./checkpoints/{args.model}2",
+        save_dir=args.savedir,
         loss_freq=10
     )
 
@@ -74,6 +74,7 @@ if __name__ == "__main__":
     parser.add_argument('--transform', type=str, default=None, help="Transformation method registered in TransformRegistry")
     parser.add_argument('--backbone_ckpt_path', type=str, default='/home/data2/jingmh/code/ml-aim/pretrain_checkpoints/aim_3b_5bimgs_attnprobe_backbone.pth'),
     parser.add_argument('--head_ckpt_path', type=str, default='/home/data2/jingmh/code/ml-aim/pretrain_checkpoints/aim_3b_5bimgs_attnprobe_head_best_layers.pth'),
+    parser.add_argument('--savedir', type=str, default="./checkpoints/AIMClassifier", help="The path saving checkpoints")
     
     args = parser.parse_args()
     main(args)
