@@ -1,15 +1,20 @@
+import os
 import logging
 import argparse
 
 import torch
 import torch.nn as nn
 from torch.optim import Adam
+import torch.distributed as dist
+from torch.utils.data import DataLoader, DistributedSampler
+from torch.nn.parallel import DistributedDataParallel as DDP
 from peft import LoraConfig, get_peft_model
 
 from train_engine import Trainer
 from dataset import BaseDataset
 from networks import NetworkRegistry 
 from preprocess import TransformRegistry
+
 
 def print_trainable_parameters(model):
     """
@@ -25,18 +30,23 @@ def print_trainable_parameters(model):
 
 def init_distributed_mode(args):
     """Initialize distributed training environment."""
-    dist.init_process_group(backend='nccl')  # You can use 'gloo' if not on a CUDA machine
+    if 'LOCAL_RANK' in os.environ:
+        args.local_rank = int(os.environ['LOCAL_RANK'])
+    else:
+        raise ValueError("Distributed training requires torchrun to set LOCAL_RANK.")
+
+    dist.init_process_group(backend='nccl')  # 或 'gloo'，取决于环境
     torch.cuda.set_device(args.local_rank)
-    print(f"Training on GPU {args.local_rank}")
+    print(f"Training initialized on GPU {args.local_rank}")
 
 def main(args):
     init_distributed_mode(args)
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.INFO if args.local_rank == 0 else logging.ERROR,  # 非主进程忽略日志
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.FileHandler("training.log"),
-            logging.StreamHandler()
+            logging.FileHandler("training.log") if args.local_rank == 0 else logging.NullHandler(),
+            logging.StreamHandler() if args.local_rank == 0 else logging.NullHandler()
         ]
     )
 
@@ -59,9 +69,12 @@ def main(args):
         backbone_ckpt_path=args.backbone_ckpt_path,
         head_ckpt_path=args.head_ckpt_path
     )
+
+    device = torch.device(f"cuda:{args.local_rank}")
+    model.to(device)
     
     lora_model = get_peft_model(model, lora_config)
-    lora_model = DDP(lora_model, device_ids=[args.local_rank], output_device=args.local_rank)
+    lora_model = DDP(lora_model, device_ids=[args.local_rank], output_device=args.local_rank, find_unused_parameters=True)
     print_trainable_parameters(lora_model)
 
     if args.transform in TransformRegistry.list_registered():
@@ -82,7 +95,6 @@ def main(args):
         shuffle=False,  # Disabled because DistributedSampler handles shuffling
         sampler=train_sampler
     )
-
 
     optimizer = Adam(
         lora_model.parameters(), 
@@ -113,10 +125,9 @@ if __name__ == "__main__":
     parser.add_argument('--dataroot', type=str, required=True, help="The dir path of input images")
     parser.add_argument('--batch_size', type=int, default=32, help="The batch size during training")
     parser.add_argument('--transform', type=str, default=None, help="Transformation method registered in TransformRegistry")
-    parser.add_argument('--backbone_ckpt_path', type=str, default='/home/data2/jingmh/code/ml-aim/pretrain_checkpoints/aim_3b_5bimgs_attnprobe_backbone.pth'),
-    parser.add_argument('--head_ckpt_path', type=str, default='/home/data2/jingmh/code/ml-aim/pretrain_checkpoints/aim_3b_5bimgs_attnprobe_head_best_layers.pth'),
-    parser.add_argument('--local_rank', type=int, default=-1, help='Local rank for DistributedDataParallel (DDP)')
-     
+    parser.add_argument('--backbone_ckpt_path', type=str, default='/home/kh31/jingmh/UAR/aim_3b_5bimgs_attnprobe_backbone.pth'),
+    parser.add_argument('--head_ckpt_path', type=str, default='/home/kh31/jingmh/UAR/aim_3b_5bimgs_attnprobe_head_best_layers.pth'),
+    
     args = parser.parse_args()
     main(args)
 
