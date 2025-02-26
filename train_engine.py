@@ -132,6 +132,7 @@ class Trainer(nn.Module):
         Path(self.save_dir).mkdir(parents=True, exist_ok=True)
         if self.save_dir:
             save_path = f"{self.save_dir}/{label}_model.pth"
-            final_model = self.model.merge_and_unload()
+            # final_model = self.model.merge_and_unload()
+            final_model = self.model.module.merge_and_unload()
             torch.save(final_model.state_dict(), save_path)
             self.logger.info(f"Model saved to {save_path}")

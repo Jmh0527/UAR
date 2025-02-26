@@ -36,7 +36,8 @@ class BaseDataset(Dataset):
         for dirpath in Path(input_path).rglob('*'):
             if dirpath.is_file():
                 if dirpath.suffix.lower() not in self.SUPPORTED_FORMATS['image']:
-                    raise ValueError(f"Unsupported file format: {dirpath.suffix}")
+                    print(f"Unsupported file format: {dirpath}")
+                    continue
                 image_paths.append(dirpath)
         return image_paths
 

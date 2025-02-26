@@ -125,8 +125,8 @@ if __name__ == "__main__":
     parser.add_argument('--dataroot', type=str, required=True, help="The dir path of input images")
     parser.add_argument('--batch_size', type=int, default=32, help="The batch size during training")
     parser.add_argument('--transform', type=str, default=None, help="Transformation method registered in TransformRegistry")
-    parser.add_argument('--backbone_ckpt_path', type=str, default='/home/kh31/jingmh/UAR/aim_3b_5bimgs_attnprobe_backbone.pth'),
-    parser.add_argument('--head_ckpt_path', type=str, default='/home/kh31/jingmh/UAR/aim_3b_5bimgs_attnprobe_head_best_layers.pth'),
+    parser.add_argument('--backbone_ckpt_path', type=str, default='/home/kh31/jingmh/aim_3b_5bimgs_attnprobe_backbone.pth'),
+    parser.add_argument('--head_ckpt_path', type=str, default='/home/kh31/jingmh/aim_3b_5bimgs_attnprobe_head_best_layers.pth'),
     
     args = parser.parse_args()
     main(args)

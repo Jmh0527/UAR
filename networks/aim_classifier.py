@@ -61,9 +61,9 @@ class AIMClassifier(nn.Module):
         return self.linear(x)
 
 
-if __name__ == '__main__':
-    x = torch.ones((1,3,224,224)).cuda()
-    model = AIMClassifier(backbone_ckpt_path='/home/data2/jingmh/code/ml-aim/pretrain_checkpoints/aim_3b_5bimgs_attnprobe_backbone.pth', 
-                          head_ckpt_path='/home/data2/jingmh/code/ml-aim/pretrain_checkpoints/aim_3b_5bimgs_attnprobe_head_best_layers.pth').cuda()
-    print(model(x))
+# if __name__ == '__main__':
+#     x = torch.ones((1,3,224,224)).cuda()
+#     model = AIMClassifier(backbone_ckpt_path='/home/data2/jingmh/code/ml-aim/pretrain_checkpoints/aim_3b_5bimgs_attnprobe_backbone.pth', 
+#                           head_ckpt_path='/home/data2/jingmh/code/ml-aim/pretrain_checkpoints/aim_3b_5bimgs_attnprobe_head_best_layers.pth').cuda()
+#     print(model(x))
     
