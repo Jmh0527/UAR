@@ -11,6 +11,10 @@ class AIMClassifier(nn.Module):
         self.linear = nn.Linear(in_features, out_features)
 
     def forward(self, x):
-        x = F.relu(x)  # 使用torch.nn.functional中的ReLU
+        # 处理权重：将负数权重置为 0
+        with torch.no_grad():  # 防止梯度更新时被计算
+            self.linear.weight[self.linear.weight < 0] = 0
+
+        x = F.relu(x)
         x = self.linear(x)
         return x
