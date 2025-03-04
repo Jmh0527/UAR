@@ -52,7 +52,7 @@ class Trainer(nn.Module):
         if type(self.model).__name__ == 'PatchCraft':
             # data[0] is a list containing two tensor
             self.input = [item.to(self.device) for item in data[0]]
-        elif type(self.model).__name__ == 'AIMClassifier':
+        elif 'AIMClassifier' in type(self.model).__name__:
             self.input = data[0].to(self.device)
             
         self.label = data[1].to(self.device)
@@ -80,6 +80,8 @@ class Trainer(nn.Module):
         Compute the loss function.
         """
         self.loss = self.loss_fn(self.output.squeeze(), self.label)
+        if "L1" in type(self.model).__name__:
+            self.loss += self.model.l1_penalty
 
     def optimize_parameters(self):
         """

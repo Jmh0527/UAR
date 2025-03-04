@@ -66,7 +66,7 @@ class Validator(nn.Module):
         y_true, y_pred = [], []
 
         for batch_idx, (img, label) in enumerate(self.dataloader):
-            print(f"Processing batch {batch_idx}/{len(self.dataloader)}", end='\r')
+            # print(f"Processing batch {batch_idx}/{len(self.dataloader)}", end='\r')
             in_tensors = img.cuda()
 
             preds = self.model(in_tensors).sigmoid().flatten().tolist()

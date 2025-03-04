@@ -1,0 +1,6 @@
+91.72 --model AIMClassifier --checkpoint /home/kh31/IJCV/UAR/checkpoints/AIMClassifier_ReLU/epoch_31_model.pth 
+50.03 --model AIMClassifier_keeppos --checkpoint  /home/kh31/IJCV/UAR/checkpoints/AIMClassifier_ReLU/epoch_31_model.pth 
+
+92.37 --model AIMClassifier --checkpoint /home/kh31/IJCV/UAR/checkpoints/AIMClassifier_ReLU_keeppos/epoch_1_model.pth 
+92.36 --model AIMClassifier_keeppos --checkpoint /home/kh31/IJCV/UAR/checkpoints/AIMClassifier_ReLU_keeppos/epoch_1_model.pth 
+50.00 --model AIMClassifier_keepneg --checkpoint /home/kh31/IJCV/UAR/checkpoints/AIMClassifier_ReLU_keeppos/epoch_1_model.pth 

@@ -50,10 +50,10 @@ def main(args):
         acc, ap, r_acc, f_acc = validator.eval()
         result_line = f"{args.validation_sets[idx]} acc: {acc:.4f}, ap: {ap:.4f}, r_acc: {r_acc:.4f}, f_acc: {f_acc:.4f}"
         ACC.append(acc) 
-        write_or_log(result_line, args.output)
+        # write_or_log(result_line, args.output)
 
     average_acc = sum(ACC) / len(ACC)
-    average_line = f"average acc: {average_acc:.4f}\n"
+    average_line = f"{args.checkpoint} average acc: {average_acc:.4f}\n"
     write_or_log(average_line, args.output)
 
 
@@ -72,7 +72,7 @@ if __name__ == "__main__":
         default=[
             'progan', 'stylegan', 'biggan', 'cyclegan', 'stargan', 'gaugan',
             'stylegan2', 'whichfaceisreal', 'ADM', 'Glide', 'Midjourney',
-            'stable_diffusion_v_1_4', 'stable_diffusion_v_1_5', 'VQDM', 'wukong', 'DALLE2'
+            'stable_diffusion_v_1_4', 'stable_diffusion_v_1_5', 'VQDM', 'wukong', 'DALLE2', 'SDXL', 'flux'
         ]
     )
     parser.add_argument('--output', type=str, default=None, help="Output file for validation results.")
